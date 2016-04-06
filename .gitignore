@@ -1,3 +1,9 @@
+# Certificate stuff
+*.cert
+*.key
+*.crt
+*.csr
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
