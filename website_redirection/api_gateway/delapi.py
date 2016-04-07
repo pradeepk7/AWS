@@ -9,8 +9,15 @@ CLIENT = boto3.client('apigateway')
 
 GET_APIS = CLIENT.get_rest_apis()['items']
 
-for API_NAME in GET_APIS:
-    print "Deleting %s" % API_NAME['id']
-    CLIENT.delete_rest_api(restApiId=API_NAME['id'])
-    CLIENT.delete_domain_name(domainName=API_NAME['id'])
-    time.sleep(45)
+for base_domain in GET_APIS:
+    try:
+        print "Deleting %s" % base_domain['id']
+        CLIENT.delete_rest_api(restApiId=base_domain['id'])
+        CLIENT.delete_domain_name(domainName=base_domain['id'])
+        time.sleep(45)
+    except TypeError as error:
+        print error
+    except NameError as error:
+        print error
+    except ClientError as error:
+        print error
