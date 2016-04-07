@@ -1,6 +1,5 @@
 #!/usr/bin/python
 '''
-Team: Product Network Engineering [pne@netflix.com]
 Web redirection via AWS API Gateway
 '''
 import boto3
@@ -8,12 +7,9 @@ from botocore.exceptions import ClientError
 
 CLIENT = boto3.client('apigateway')
 
-#BASE_URL = raw_input('Enter the source URL: ')
-#TARGET_URL = raw_input('Enter the destination URL: ')
+BASE_URL = raw_input('Enter the source URL: ')
+TARGET_URL = raw_input('Enter the destination URL: ')
 #STATUS_CODE = raw_input('Enter the status code for redirection(e.g: 301): ')
-
-BASE_URL = 'https://pne-test.netflix.com'
-TARGET_URL = 'https://www.netflix.com'
 
 BASE_DOMAIN = BASE_URL.split('https://')[1]
 TARGET_DOMAIN = TARGET_URL.split('https://')[1]
