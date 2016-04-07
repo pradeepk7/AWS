@@ -112,11 +112,6 @@ try:
                                                            certificatePrivateKey=CERT_KEY,
                                                            certificateChain=CERT_CHAIN)
 
-    # Close files
-    CERT_BODY.close()
-    CERT_KEY.close()
-    CERT_CHAIN.close()
-
     GET_DISTRIBUTION_DOMAIN = CLIENT.get_domain_names(position=BASE_DOMAIN,
                                                       limit=123)
 
