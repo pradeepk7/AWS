@@ -17,8 +17,10 @@ for base_domain in GET_APIS:
         CLIENT.delete_domain_name(domainName=base_domain['id'])
         time.sleep(45)
     except TypeError as error:
-        print error
+        print "\033[1;31m%s\033[1;0m" % error
     except NameError as error:
-        print error
+        print "\033[1;31m%s\033[1;0m" % error
     except ClientError as error:
-        print error
+        print "\033[1;31m%s\033[1;0m" % error
+
+print 'AWS /> Please wait 10-20 minutes while the CloudFront distribution is removed from all edge nodes.'
