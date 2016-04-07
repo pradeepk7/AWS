@@ -72,10 +72,9 @@ for resource_id in RESOURCES:
                                                                    responseParameters={"method.response.header.Location":"'" + TARGET_URL + "'"})
 
     except TypeError as error:
-        print error
+        print "\033[1;31m%s\033[1;0m" % error
     except NameError as error:
-        print error
-
+        print "\033[1;31m%s\033[1;0m" % error
 
 try:
     # Create API Gateway Deployment and Stage
@@ -121,10 +120,10 @@ try:
                                                            restApiId=API_ID,
                                                            stage=STAGE_NAME)
 except TypeError as error:
-    print error
+    print "\033[1;31m%s\033[1;0m" % error
 except NameError as error:
-    print error
+    print "\033[1;31m%s\033[1;0m" % error
 except ClientError as error:
-    print error
+    print "\033[1;31m%s\033[1;0m" % error
 
 print 'AWS /> Please wait 10-20 minutes while the CloudFront distribution is deployed to all edge nodes.'
