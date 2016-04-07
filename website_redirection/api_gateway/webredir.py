@@ -1,15 +1,19 @@
 #!/usr/bin/python
 '''
+Team: Product Network Engineering [pne@netflix.com]
 Web redirection via AWS API Gateway
-Sourced from: https://alestic.com/2015/11/amazon-api-gateway-aws-cli-redirect/
 '''
 import boto3
 from botocore.exceptions import ClientError
 
 CLIENT = boto3.client('apigateway')
 
-BASE_URL = raw_input('Enter the source URL: ')
-TARGET_URL = raw_input('Enter the destination URL: ')
+#BASE_URL = raw_input('Enter the source URL: ')
+#TARGET_URL = raw_input('Enter the destination URL: ')
+#STATUS_CODE = raw_input('Enter the status code for redirection(e.g: 301): ')
+
+BASE_URL = 'https://pne-test.netflix.com'
+TARGET_URL = 'https://www.netflix.com'
 
 BASE_DOMAIN = BASE_URL.split('https://')[1]
 TARGET_DOMAIN = TARGET_URL.split('https://')[1]
@@ -19,9 +23,13 @@ RESOURCE_PATH = '/'
 REGION = 'us-east-1'
 STAGE_NAME = 'prod'
 
+CERTIFICATE_PATH = 'domains/'
 CERTIFICATE_NAME = BASE_DOMAIN
+#CERTIFICATE_BODY = CERTIFICATE_PATH + BASE_DOMAIN + '.cert'
 CERTIFICATE_BODY = BASE_DOMAIN + '.cert'
+#CERTIFICATE_PRIVATE_KEY = CERTIFICATE_PATH + BASE_DOMAIN + '.key'
 CERTIFICATE_PRIVATE_KEY = BASE_DOMAIN + '.key'
+#CERTIFICATE_CHAIN = CERTIFICATE_PATH + BASE_DOMAIN + '-chain.crt'
 CERTIFICATE_CHAIN = BASE_DOMAIN + '-chain.crt'
 
 # 1. Create a new API Gateway.
@@ -88,20 +96,35 @@ try:
     # Although, it will not show up in normal CloudFront queries.
 
     # Print out the destination URL to use:
-    print '## Test the redirect with the following URL: '
-    print '## https://' + API_ID + '.execute-api.' + REGION + \
+    print 'AWS /> Test the redirect with the following URL: '
+    print 'AWS /> https://' + API_ID + '.execute-api.' + REGION + \
           '.amazonaws.com' + '/' + STAGE_NAME + RESOURCE_PATH
 
-    print '## The above is a CloudFront URL.'
-    print '## After testing, add an alias record for ' + BASE_DOMAIN
-    print '## pointing to the CloudFront distribution associated'
-    print '## with the API Gateway Domain Name.'
+    print 'AWS /> After testing, add an alias record for ' + BASE_DOMAIN
+    print 'AWS /> pointing to the CloudFront distribution associated'
+    print 'AWS /> with the API Gateway Domain Name.'
+
+    # Open and read into memory
+    CERT_BODY = open(CERTIFICATE_BODY, 'r').read()
+    CERT_KEY = open(CERTIFICATE_PRIVATE_KEY, 'r').read()
+    CERT_CHAIN = open(CERTIFICATE_CHAIN, 'r').read()
+
 
     CREATE_DISTRIBUTION_DOMAIN = CLIENT.create_domain_name(domainName=BASE_DOMAIN,
                                                            certificateName=CERTIFICATE_NAME,
-                                                           certificateBody='file://' + CERTIFICATE_BODY,
-                                                           certificatePrivateKey='file://' + CERTIFICATE_PRIVATE_KEY,
-                                                           certificateChain='file://' + CERTIFICATE_CHAIN)
+                                                           certificateBody=CERT_BODY,
+                                                           certificatePrivateKey=CERT_KEY,
+                                                           certificateChain=CERT_CHAIN)
+
+    # Close files
+    CERT_BODY.close()
+    CERT_KEY.close()
+    CERT_CHAIN.close()
+
+    GET_DISTRIBUTION_DOMAIN = CLIENT.get_domain_names(position=BASE_DOMAIN,
+                                                      limit=123)
+
+    print 'AWS /> Cloudfront domain to alias in Route 53: %s' % GET_DISTRIBUTION_DOMAIN
 
     CREATE_BASE_PATH_MAP = CLIENT.create_base_path_mapping(domainName=BASE_DOMAIN,
                                                            restApiId=API_ID,
@@ -113,4 +136,4 @@ except NameError as error:
 except ClientError as error:
     print error
 
-print '## Please wait 10-20 minutes while the CloudFront distribution is deployed to all edge nodes.'
+print 'AWS /> Please wait 10-20 minutes while the CloudFront distribution is deployed to all edge nodes.'
