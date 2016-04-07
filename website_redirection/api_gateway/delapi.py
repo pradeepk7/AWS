@@ -4,6 +4,7 @@ Deletes Rest API Service
 '''
 import time
 import boto3
+from botocore.exceptions import ClientError
 
 CLIENT = boto3.client('apigateway')
 
