@@ -16,7 +16,7 @@ class Gateway(object):
 
     def __init__(self, base_url, target_url, prefixes):
         '''
-        foo
+        Initialize. 
         '''
         self.base_url = base_url
         self.target_url = target_url
