@@ -2,6 +2,7 @@
 '''
 301 Web redirection via AWS API Gateway
 '''
+
 import boto3
 from botocore.exceptions import ClientError
 
@@ -16,7 +17,7 @@ class Gateway(object):
 
     def __init__(self, base_url, target_url, prefixes):
         '''
-        Initialize. 
+        Initialize.
         '''
         self.base_url = base_url
         self.target_url = target_url
@@ -26,11 +27,15 @@ class Gateway(object):
             self.base_domain = base_url.split('http://')[1]
         elif self.base_url.startswith('https://'):
             self.base_domain = base_url.split('https://')[1]
+        else:
+            self.base_domain = base_url
 
         if self.target_url.startswith('http://'):
             self.target_domain = target_url.split('http://')[1]
         elif target_url.startswith('https://'):
             self.target_domain = target_url.split('https://')[1]
+        else:
+            self.target_domain = target_url
 
         api_description = 'Redirect ' + self.base_domain + ' to ' + self.target_url
         self.resource_path = '/'
@@ -54,9 +59,9 @@ class Gateway(object):
 
         self.resource_id = []
 
-    def method_response(self):
+    def method_req_resp(self):
         '''
-        Set the GET response
+        Set the request & response
         '''
         for self.resource_id in self.resources:
             try:
@@ -198,15 +203,44 @@ class Gateway(object):
                 except ClientError as error:
                     print "\033[1;31m%s\033[1;0m" % error
 
+
+def check_existing(base_url):
+    '''
+    Checks for existing domains.
+    Raises a warning if encountered.
+    '''
+    try:
+        if base_url.startswith('http://'):
+            base_domain = base_url.split('http://')[1]
+        elif base_url.startswith('https://'):
+            base_domain = base_url.split('https://')[1]
+        else:
+            base_domain = base_url
+
+        if CLIENT.get_domain_name(domainName=base_domain):
+            print 'AWS /> \033[1;31m%s\033[1;0m already exists.' % base_domain
+            domain_exists = raw_input('Proceed with creating a new redirect?[Y|n]: ')
+            if domain_exists == "n":
+                exit()
+    except IndexError as error:
+        print "\033[1;31m%s\033[1;0m" % error
+    except TypeError as error:
+        print "\033[1;31m%s\033[1;0m" % error
+    except NameError as error:
+        print "\033[1;31m%s\033[1;0m" % error
+    except ClientError as error:
+        pass
+
 if __name__ == "__main__":
     BASE_URL = raw_input('Enter the source URL: ')
+    check_existing(BASE_URL)
     TARGET_URL = raw_input('Enter the destination URL: ')
     PREFIXES = raw_input(
         'Enter space seperated URL prefixes(e.g: www www2): ')
 
     CREATE_GW = Gateway(BASE_URL, TARGET_URL, PREFIXES)
 
-    CREATE_METHOD = CREATE_GW.method_response()
+    CREATE_METHOD = CREATE_GW.method_req_resp()
     CREATE_MOCK = CREATE_GW.mock()
     CREATE_INTEGRATION_RESPONSE = CREATE_GW.integration_response()
     CREATE_DEPLOYMENT = CREATE_GW.deployment()
